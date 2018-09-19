@@ -35,9 +35,9 @@ def plot_display(x0, y0, figname, line):
     #plt.logy = True
     ax, = plt.semilogy(x0, y0)
     #ax, = plt.plot(x0, y0)
-    plt.ylim(10**(-3.5), 1)
+    plt.ylim(10**(-1), 0.5)
     #plt.ylim(0.1, 1)
-    plt.xlim(0, 25)
+    plt.xlim(0, 10)
     #ax1, = plt.plot(x0, y0)
 
     return ax
@@ -55,11 +55,13 @@ def cal_func(SNRdB, mode = 'QPSK', p = []):
     if mode == 'QPSK_target':
         return shoot_target(coordinates, 'QPSK', SNRdB, 1000)
     if mode == '8QAM_target':
-        return shoot_target(coordinates, '8QAM', SNRdB, 2000)
+        return shoot_target(coordinates, '8QAM', SNRdB, 5000)
     if mode == '16QAM_star_target':
-        return shoot_target(coordinates, 'star', SNRdB, 2000, p)
+        return shoot_target(coordinates, 'star', SNRdB, 5000, p)
+    if mode == '16QAM_star2_target':
+        return shoot_target(coordinates, 'star2', SNRdB, 5000, p)
     if mode == '16QAM_square_target':
-        return shoot_target(coordinates, 'square', SNRdB, 2000)
+        return shoot_target(coordinates, 'square', SNRdB, 5000)
 
 def cal_func_QPSK(SNRdB):
     sigma = math.sqrt(2.0) / 2 * (10.0 ** (-SNRdB / 20.0))
@@ -264,6 +266,7 @@ def calculation_fit(mode, lenth, figure, p = []):
     x0 = []
     y0 = []
     for num in range(0, lenth):
+        #num = 17
         SNRdB = float(num/1.0)
         sigma = 10 ** (-SNRdB / 20)
 
@@ -339,7 +342,7 @@ def shoot_target(coordinates, mode, SNRdB, point_num, p = [2,1,1,1]):
         sigma = math.sqrt((3 + math.sqrt(3)) / 4) * (10 ** (-SNRdB / 20.0))
 
     plt.figure(u'16QAM仿真')
-    plt.title(u'16QAM_矩形_仿真')
+    plt.title(u'16QAM_改进星型_仿真')
     plt.xlabel('x')
     plt.ylabel('y')
     plt.xlim(-3, 3)
@@ -431,16 +434,16 @@ def shoot_target(coordinates, mode, SNRdB, point_num, p = [2,1,1,1]):
                         char_diff += 1.0
                 err_num += char_diff
 
-        plt.scatter(xn[:], yn[:], 10, "blue", 'o')
-        plt.scatter(x_err[:], y_err[:], 10, "red", 'o')
+        #plt.scatter(xn[:], yn[:], 10, "blue", 'o')
+        #plt.scatter(x_err[:], y_err[:], 10, "red", 'o')
     BER = err_num / len(coordinates[mode][num_real][2]) / point_num / len(coordinates[mode])
-    print "SNRdB is : " + str(SNRdB) + ", BER is : " + str(BER)
+    print "mode is : " + str(mode) + ", SNRdB is : " + str(SNRdB) + ", BER is : " + str(BER)
     return BER
 def distance(point1, point2):
     return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-def star_c(lenth, ang, code, p):
-    result = [lenth * math.sin(ang * math.pi / 4), lenth * math.cos(ang * math.pi / 4), code]
+def star_c(lenth, ang, code, p = None, la = 4):
+    result = [lenth * math.sin(ang * math.pi / la), lenth * math.cos(ang * math.pi / la), code]
     #print result
     return result
 
@@ -462,10 +465,31 @@ if __name__ == "__main__":
                         [-0.5 - math.sqrt(3) / 2, 0, '100'], [0.5 + math.sqrt(3) / 2, 0, '111'],
                         [-0.5, -0.5, '010'], [0.5, -0.5, '011'],
                         [0, -0.5 - math.sqrt(3) / 2, '110'], ]
-    coordinates['star'] = [star_c(1, 0, '0000', 0.0001), star_c(1, 1, '0010', 0.0001), star_c(2, 0, '0001', 0.1107), star_c(2, 1, '0011', 0.1391),
-                           star_c(1, 2, '0110', 0.0001), star_c(1, 3, '0100', 0.0001), star_c(2, 2, '0111', 0.1107), star_c(2, 3, '0101', 0.1391),
-                           star_c(1, 4, '1100', 0.0001), star_c(1, 5, '1110', 0.0001), star_c(2, 4, '1101', 0.1107), star_c(2, 5, '1111', 0.1391),
-                           star_c(1, 6, '1010', 0.0001), star_c(1, 7, '1000', 0.0001), star_c(2, 6, '1011', 0.1107), star_c(2, 7, '1001', 0.1391),]
+    coordinates['star'] = [star_c(1, 0, '0000', 0.0001), star_c(1, 1, '0010', 0.0001), star_c(2, 0, '0001', 0.1107),
+                           star_c(2, 1, '0011', 0.1391),
+                           star_c(1, 2, '0110', 0.0001), star_c(1, 3, '0100', 0.0001), star_c(2, 2, '0111', 0.1107),
+                           star_c(2, 3, '0101', 0.1391),
+                           star_c(1, 4, '1100', 0.0001), star_c(1, 5, '1110', 0.0001), star_c(2, 4, '1101', 0.1107),
+                           star_c(2, 5, '1111', 0.1391),
+                           star_c(1, 6, '1010', 0.0001), star_c(1, 7, '1000', 0.0001), star_c(2, 6, '1011', 0.1107),
+                           star_c(2, 7, '1001', 0.1391), ]
+    coordinates['star2'] = [star_c(1, 0, '0000', 0.0001), star_c(1, 1, '0010', 0.0001), star_c(2, 0.5, '0001', 0.1107),
+                            star_c(2, 1.5, '0011', 0.1391),
+                            star_c(1, 2, '0110', 0.0001), star_c(1, 3, '0100', 0.0001), star_c(2, 2.5, '0111', 0.1107),
+                            star_c(2, 3.5, '0101', 0.1391),
+                            star_c(1, 4, '1100', 0.0001), star_c(1, 5, '1110', 0.0001), star_c(2, 4.5, '1101', 0.1107),
+                            star_c(2, 5.5, '1111', 0.1391),
+                            star_c(1, 6, '1010', 0.0001), star_c(1, 7, '1000', 0.0001), star_c(2, 6.5, '1011', 0.1107),
+                            star_c(2, 7.5, '1001', 0.1391), ]
+    coordinates['star3'] = [star_c(1, 0, '0000', 0,), star_c(1, 1, '0010', 0.0001), star_c(2, 0.5, '0001', 0.1107),
+                            star_c(2, 1.5, '0011', 0.1391),
+                            star_c(1, 2, '0110', 0.0001), star_c(1, 3, '0100', 0.0001), star_c(2, 2.5, '0111', 0.1107),
+                            star_c(2, 3.5, '0101', 0.1391),
+                            star_c(1, 4, '1100', 0.0001), star_c(1, 5, '1110', 0.0001), star_c(2, 4.5, '1101', 0.1107),
+                            star_c(2, 5.5, '1111', 0.1391),
+                            star_c(1, 6, '1010', 0.0001), star_c(1, 7, '1000', 0.0001), star_c(2, 6.5, '1011', 0.1107),
+                            star_c(2, 7.5, '1001', 0.1391), ]
+
     #shoot_target(coordinates, 'QPSK', 9.9093152729, 100)
 
     p1 = sympy.Symbol('p1')
@@ -491,13 +515,15 @@ if __name__ == "__main__":
     #ax_line.append('8QAM_target')
     #ax.append(calculation_fit('16QAM_square_target', 25, 'BER - SNR'))
     #ax_line.append('16QAM_square_target')
-    ax.append(calculation_fit('8QAM_target', 8, 'BER - SNR'))
+    ax.append(calculation_fit('8QAM_target', 12, 'BER - SNR'))
     ax_line.append(u'8QAM_仿真')
-    ax.append(calculation_fit('16QAM_star_target', 8, 'BER - SNR', [0.1, 0.1107, 0.139]))
+    ax.append(calculation_fit('16QAM_star_target', 12, 'BER - SNR', [0.0001, 0.1107, 0.139]))
     ax_line.append(u'16QAM_星型_仿真')
+    ax.append(calculation_fit('16QAM_star2_target', 12, 'BER - SNR', [0.0001, 0.1107, 0.139]))
+    ax_line.append(u'16QAM_改进星型_仿真')
     #ax.append(calculation_fit('16QAM_star_target', 25, 'BER - SNR', []))
     #ax_line.append('16QAM_star_target_all=1')
-    ax.append(calculation_fit('16QAM_square_target', 8, 'BER - SNR'))
+    ax.append(calculation_fit('16QAM_square_target', 12, 'BER - SNR'))
     ax_line.append(u'16QAM_矩形_仿真')
     plt.legend(ax, ax_line, loc='lower left', )
 
